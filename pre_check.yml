@@ -1,40 +1,69 @@
 ---
-- name: Pre-Checks for CI/CD Pipeline
+- name: CI/CD Pipeline Pre-Checks
   hosts: localhost
   gather_facts: no
+ 
+  vars:
+    git_command: "git --version"
+    maven_command: "mvn --version"
+    kubectl_command: "kubectl version --client"
+    sonar_url: "http://10.138.77.104:9000"
+    docker_registry_url: "https://hub.docker.com/u/bhavanaguda"
+ 
   tasks:
-   - name: Check if Git is installed
-     shell: git --version
-     register: git_installed
-     ignore_errors: yes
+    - name: Check if Git is installed
+      command: "{{ git_command }}"
+      register: git_result
+      ignore_errors: yes
  
-   - name: Check if Maven is installed
-     shell: mvn --version
-     register: maven_version
-     ignore_errors: yes
+    - name: Display custom message if Git is not installed
+      debug:
+        msg: "Git is not installed."
+      when: git_result is failed
  
-   - name: Check if SonarQube is reachable
-     uri:
-       url: http://10.138.77.104:9000
-     register: sonarqube_status
-     ignore_errors: yes
+    - name: Check if Maven is installed
+      command: "{{ maven_command }}"
+      register: maven_result
+      ignore_errors: yes
  
-   - name: Check if Docker Registry is reachable
-     uri:
-       url: https://hub.docker.com/u/bhavanaguda
-     register: docker_registry_status
-     ignore_errors: yes
+    - name: Display custom message if Maven is not installed
+      debug:
+        msg: "Maven is not installed."
+      when: maven_result is failed
  
-   - name: Check if Kubernetes is installed
-     shell: kubectl version --client
-     register: kubernetes_installed
-     ignore_errors: yes
+    - name: Check if Kubernetes is installed
+      command: "{{ kubectl_command }}"
+      register: kubectl_result
+      ignore_errors: yes
  
-   - name: Display pre-checks status
-     debug:
-       msg: |
-         Git: Installed: {{ 'Installed' if git_installed.rc == 0 else 'Not Installed' }}
-         Maven: Installed: {{'Installed' if maven_version.rc == 0 else 'Not Installed' }}
-         SonarQube: Reachable: {{'Reachable' if sonarqube_status.status == 200 else 'Not Reachable'}}
-         Docker Registry: {{'Installed' if docker_registry_status.status == 200 else 'Not Installed' }}
-         Kubernetes: {{'Installed' if kubernetes_installed.rc == 0 else 'Not Installed'}}
+    - name: Display custom message if Kubernetes is not installed
+      debug:
+        msg: "Kubernetes is not installed."
+      when: kubectl_result is failed
+ 
+    - name: Check if SonarQube is reachable
+      uri:
+        url: "{{ sonar_url }}"
+        return_content: yes
+        status_code: 200
+      register: sonar_result
+      ignore_errors: yes
+ 
+    - name: Display custom message if SonarQube is not reachable
+      debug:
+        msg: "SonarQube is not reachable."
+      when: sonar_result.status != 200
+ 
+    - name: Check if Docker Registry is reachable
+      uri:
+        url: "{{ docker_registry_url }}"
+        return_content: yes
+        status_code: 200
+      register: docker_result
+      ignore_errors: yes
+ 
+    - name: Display custom message if Docker Registry is not reachable
+      debug:
+        msg: "Docker Registry is not reachable."
+      when: docker_result.status != 200
+

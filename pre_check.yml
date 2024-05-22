@@ -1,5 +1,5 @@
 ---
-- name: CI/CD Pipeline Pre-Checks
+- name: Pre-Checks
   hosts: localhost
   gather_facts: no
  
@@ -16,17 +16,17 @@
       register: git_result
       ignore_errors: yes
  
-    - name: Display custom message if Git is not installed
+    - name: git
       debug:
         msg: "Git is not installed."
       when: git_result is failed
  
-    - name: Check if Maven is installed
+    - name: Check if Maven is installe
       command: "{{ maven_command }}"
       register: maven_result
       ignore_errors: yes
  
-    - name: Display custom message if Maven is not installed
+    - name: maven
       debug:
         msg: "Maven is not installed."
       when: maven_result is failed
@@ -36,7 +36,7 @@
       register: kubectl_result
       ignore_errors: yes
  
-    - name: Display custom message if Kubernetes is not installed
+    - name: Kubernetes
       debug:
         msg: "Kubernetes is not installed."
       when: kubectl_result is failed
@@ -49,7 +49,7 @@
       register: sonar_result
       ignore_errors: yes
  
-    - name: Display custom message if SonarQube is not reachable
+    - name: SonarQube
       debug:
         msg: "SonarQube is not reachable."
       when: sonar_result.status != 200
@@ -62,7 +62,7 @@
       register: docker_result
       ignore_errors: yes
  
-    - name: Display custom message if Docker Registry is not reachable
+    - name: Docker 
       debug:
         msg: "Docker Registry is not reachable."
       when: docker_result.status != 200

@@ -2,6 +2,7 @@
 - name: Pre-Checks and Installation
   hosts: localhost
   gather_facts: no
+  become: yes
   vars:
     git_command: git --version
     maven_command: mvn --version

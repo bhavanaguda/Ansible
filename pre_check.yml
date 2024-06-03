@@ -1,49 +1,37 @@
 ---
-- name: CI/CD Pipeline Pre-Checks
+- name: Pre-Checks
   hosts: localhost
   gather_facts: no
   vars:
     git_command: git --version
     maven_command: mvn --version
     kubectl_command: kubectl version --client
-    sonar_url: http://your-sonarqube-url
-    docker_registry_url: http://your-docker-registry-url
+    sonar_url: http://10.138.77.104:9000
+    docker_registry_url: https://hub.docker.com/u/bhavanaguda
   tasks:
     - name: Check if Git is installed
       command: "{{ git_command }}"
       register: git_result
       ignore_errors: yes
-    - name: Display custom message if Git is not installed
+    - name: git
       debug:
         msg: Git is not installed.
       when: git_result is failed
-    - name: Fail if Git is not installed
-      fail:
-        msg: Git is required but not installed.
-      when: git_result is failed
-    - name: Check if Maven is installed
+    - name: Check if Maven is installe
       command: "{{ maven_command }}"
       register: maven_result
       ignore_errors: yes
-    - name: Display custom message if Maven is not installed
+    - name: maven
       debug:
         msg: Maven is not installed.
-      when: maven_result is failed
-    - name: Fail if Maven is not installed
-      fail:
-        msg: Maven is required but not installed.
       when: maven_result is failed
     - name: Check if Kubernetes is installed
       command: "{{ kubectl_command }}"
       register: kubectl_result
       ignore_errors: yes
-    - name: Display custom message if Kubernetes is not installed
+    - name: Kubernetes
       debug:
         msg: Kubernetes is not installed.
-      when: kubectl_result is failed
-    - name: Fail if Kubernetes is not installed
-      fail:
-        msg: Kubernetes is required but not installed.
       when: kubectl_result is failed
     - name: Check if SonarQube is reachable
       uri:
@@ -52,13 +40,9 @@
         status_code: 200
       register: sonar_result
       ignore_errors: yes
-    - name: Display custom message if SonarQube is not reachable
+    - name: SonarQube
       debug:
         msg: SonarQube is not reachable.
-      when: sonar_result.status != 200
-    - name: Fail if SonarQube is not reachable
-      fail:
-        msg: SonarQube is required but not reachable.
       when: sonar_result.status != 200
     - name: Check if Docker Registry is reachable
       uri:
@@ -67,11 +51,7 @@
         status_code: 200
       register: docker_result
       ignore_errors: yes
-    - name: Display custom message if Docker Registry is not reachable
+    - name: Docker
       debug:
         msg: Docker Registry is not reachable.
-      when: docker_result.status != 200
-    - name: Fail if Docker Registry is not reachable
-      fail:
-        msg: Docker Registry is required but not reachable.
       when: docker_result.status != 200

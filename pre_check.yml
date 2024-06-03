@@ -1,5 +1,5 @@
 ---
-- name: Pre-Checks
+- name: Pre-Checks and Installations
   hosts: localhost
   gather_facts: no
   vars:
@@ -8,30 +8,50 @@
     kubectl_command: kubectl version --client
     sonar_url: http://10.138.77.104:9000
     docker_registry_url: https://hub.docker.com/u/bhavanaguda
+    install_git_command: apt-get update && apt-get install -y git
+    install_maven_command: apt-get update && apt-get install -y maven
+    install_kubectl_command: >
+      curl -LO
+      "https://storage.googleapis.com/kubernetes-release/release/$(curl -s
+      https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+      &&
+
+      chmod +x ./kubectl &&
+
+      mv ./kubectl /usr/local/bin/kubectl
   tasks:
     - name: Check if Git is installed
       command: "{{ git_command }}"
       register: git_result
       ignore_errors: yes
-    - name: git
+    - name: Git is not installed
       debug:
         msg: Git is not installed.
       when: git_result is failed
-    - name: Check if Maven is installe
+    - name: Install Git
+      command: "{{ install_git_command }}"
+      when: git_result is failed
+    - name: Check if Maven is installed
       command: "{{ maven_command }}"
       register: maven_result
       ignore_errors: yes
-    - name: maven
+    - name: Maven is not installed
       debug:
         msg: Maven is not installed.
+      when: maven_result is failed
+    - name: Install Maven
+      command: "{{ install_maven_command }}"
       when: maven_result is failed
     - name: Check if Kubernetes is installed
       command: "{{ kubectl_command }}"
       register: kubectl_result
       ignore_errors: yes
-    - name: Kubernetes
+    - name: Kubernetes is not installed
       debug:
         msg: Kubernetes is not installed.
+      when: kubectl_result is failed
+    - name: Install Kubernetes
+      command: "{{ install_kubectl_command }}"
       when: kubectl_result is failed
     - name: Check if SonarQube is reachable
       uri:
@@ -40,7 +60,7 @@
         status_code: 200
       register: sonar_result
       ignore_errors: yes
-    - name: SonarQube
+    - name: SonarQube is not reachable
       debug:
         msg: SonarQube is not reachable.
       when: sonar_result.status != 200
@@ -51,7 +71,7 @@
         status_code: 200
       register: docker_result
       ignore_errors: yes
-    - name: Docker
+    - name: Docker Registry is not reachable
       debug:
         msg: Docker Registry is not reachable.
       when: docker_result.status != 200

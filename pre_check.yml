@@ -8,8 +8,8 @@
     kubectl_command: kubectl version --client
     sonar_url: http://10.138.77.104:9000
     docker_registry_url: https://hub.docker.com/u/bhavanaguda
-    install_git_command: apt-get update && apt-get install -y git
-    install_maven_command: apt-get update && apt-get install -y maven
+    install_git_command: sudo apt-get update && sudo apt-get install -y git
+    install_maven_command: sudo apt-get update && sudo apt-get install -y maven
     install_kubectl_command: >
       curl -LO
       "https://storage.googleapis.com/kubernetes-release/release/$(curl -s

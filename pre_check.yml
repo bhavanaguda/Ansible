@@ -18,10 +18,10 @@
         msg: Git is not installed.
       when: git_result is failed
     - name: Update apt cache for Git installation
-      command: apt-get update
+      command: sudo apt-get update
       when: git_result is failed
     - name: Install Git
-      command: apt-get install -y git
+      command: sudo apt-get install -y git
       when: git_result is failed
     - name: Check if Maven is installed
       command: "{{ maven_command }}"
@@ -32,10 +32,10 @@
         msg: Maven is not installed.
       when: maven_result is failed
     - name: Update apt cache for Maven installation
-      command: apt-get update
+      command: sudo apt-get update
       when: maven_result is failed
     - name: Install Maven
-      command: apt-get install -y maven
+      command: sudo apt-get install -y maven
       when: maven_result is failed
     - name: Check if Kubernetes is installed
       command: "{{ kubectl_command }}"
@@ -54,7 +54,7 @@
 
         chmod +x ./kubectl &&
 
-        mv ./kubectl /usr/local/bin/kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
       when: kubectl_result is failed
     - name: Check if SonarQube is reachable
       uri:

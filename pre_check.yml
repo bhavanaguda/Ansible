@@ -3,6 +3,7 @@
   hosts: localhost
   gather_facts: no
   become: yes
+  become_method: sudo
   vars:
     git_command: git --version
     maven_command: mvn --version

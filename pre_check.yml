@@ -2,6 +2,7 @@
 - name: Pre-Checks and Installations
   hosts: localhost
   gather_facts: no
+  become: yes
   vars:
     git_command: git --version
     maven_command: mvn --version
@@ -17,12 +18,6 @@
       debug:
         msg: Git is not installed.
       when: git_result is failed
-    - name: Update apt cache for Git installation
-      command: sudo apt-get update
-      when: git_result is failed
-    - name: Install Git
-      command: sudo apt-get install -y git
-      when: git_result is failed
     - name: Check if Maven is installed
       command: "{{ maven_command }}"
       register: maven_result
@@ -30,12 +25,6 @@
     - name: Maven is not installed
       debug:
         msg: Maven is not installed.
-      when: maven_result is failed
-    - name: Update apt cache for Maven installation
-      command: sudo apt-get update
-      when: maven_result is failed
-    - name: Install Maven
-      command: sudo apt-get install -y maven
       when: maven_result is failed
     - name: Check if Kubernetes is installed
       command: "{{ kubectl_command }}"
@@ -45,6 +34,20 @@
       debug:
         msg: Kubernetes is not installed.
       when: kubectl_result is failed
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: git_result is failed or maven_result is failed
+    - name: Install Git
+      apt:
+        name: git
+        state: present
+      when: git_result is failed
+    - name: Install Maven
+      apt:
+        name: maven
+        state: present
+      when: maven_result is failed
     - name: Install Kubernetes
       shell: >
         curl -LO
@@ -54,7 +57,7 @@
 
         chmod +x ./kubectl &&
 
-        sudo mv ./kubectl /usr/local/bin/kubectl
+        mv ./kubectl /usr/local/bin/kubectl
       when: kubectl_result is failed
     - name: Check if SonarQube is reachable
       uri:
